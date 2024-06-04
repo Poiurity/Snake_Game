@@ -30,6 +30,22 @@ vector<Wall> data_Wall;
 int cur_Stage = 1;
 
 //함수 선언 공간
+void afterCrash(bool &setStop){
+  setStop = true;
+}
+
+bool crash_Check(int x, int y){
+  for(Wall val : data_Wall){
+    if (x == val.x && y == val.y){
+      return true;
+    }
+    if(x == X_game_Display || y == Y_game_Display || x >= height_game_Display || y >= width_game_Display){
+      return true;
+    }
+  }
+  return false;
+}
+
 void draw_Wall(){
   switch (cur_Stage) {
     case 1: {
@@ -59,7 +75,7 @@ int main()
   noecho();
   curs_set(0);
   keypad(stdscr, true);
-  timeout(200);
+  timeout(300);
 
   // color pair 설정 공간
   start_color();
@@ -76,6 +92,7 @@ int main()
 
   bool stop = false;
   bool err_Dir = false;
+  bool isHead = true;
 
   int cur_Dir = RIGHT; 
   int in_Key; 
@@ -120,12 +137,20 @@ int main()
     // 진행 방향과 반대 방향으로 입력이 들어왔는지 체크
     if(err_Dir) stop = true; 
     // 몸통과 접촉하는지 체크
+    isHead = true;
     for(Snake body : data_Snake){
-        if(head.x == body.x && head.y == body.y) {
-          //stop = true;
+        if(isHead) {
+          isHead = false;
+          continue;
+        }
+        else if (head_x == body.x && head_y == body.y){
+          stop = true;
           break;
-      }
-    } 
+        }
+        
+    }
+    // 구조물(테두리 벽, 추가된 벽)과 충돌하는지 체크
+    if(crash_Check(head_x, head_y)) {break;/*afterCrash(stop);*/} 
 
     /* 스네이크 위치 최신화 */
 
@@ -145,7 +170,7 @@ int main()
                           X_game_Display, Y_game_Display);
     wbkgd(game_Display, COLOR_PAIR(1)); 
     //wattron(game_Display, COLOR_PAIR(1)); 
-    wborder(game_Display, COLOR_PAIR(4), COLOR_PAIR(4), COLOR_PAIR(5), COLOR_PAIR(5), // 왼,오,상,하 : color pair 5번
+    wborder(game_Display, 'O', 'O', 'O', 'O', // 왼,오,상,하 : color pair 5번
                           'X', 'X', 'X', 'X'); // 모서리 : color pair 8번
     
     // 맵 구조물 출력
@@ -155,7 +180,7 @@ int main()
     wrefresh(game_Display);
 
     // 스네이크 출력
-    bool isHead = true;
+    isHead = true;
     for(Snake i : data_Snake){
       if(isHead){
           mvwaddch(game_Display, i.y, i.x, COLOR_PAIR(3)); // snakes의 첫 원소 = head의 좌표, head_idx는 첫 번째 좌표인지 아닌지를 구분하기 위해서만 사용됨
