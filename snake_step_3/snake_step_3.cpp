@@ -58,7 +58,7 @@ inline bool crash_Check(int x, int y){
     if (x == val.x && y == val.y){
       return true;
     }
-    if(x == X_game_Display || y == Y_game_Display || x >= height_game_Display-2 || y >= width_game_Display-2 ){
+    if(x == X_game_Display || y == Y_game_Display || x >= width_game_Display-2 || y >= height_game_Display-2 ){
       return true;
     }
   }
