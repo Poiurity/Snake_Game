@@ -370,14 +370,14 @@ int main()
         }
       }
       if (is_gate) {
-        mvwaddch(game_Display, data_Wall[i].y, data_Wall[i].x, 'G' | COLOR_PAIR(9));
+        mvwaddch(game_Display, data_Wall[i].y, data_Wall[i].x, COLOR_PAIR(9));
       } else {
-        mvwaddch(game_Display, data_Wall[i].y, data_Wall[i].x, 'W' | COLOR_PAIR(5));
+        mvwaddch(game_Display, data_Wall[i].y, data_Wall[i].x, COLOR_PAIR(5));
       }
     }
 
     for (Gate gate : data_Gate) {
-        mvwaddch(game_Display, gate.y, gate.x, 'G' | COLOR_PAIR(9));
+        mvwaddch(game_Display, gate.y, gate.x, COLOR_PAIR(9));
     }
 
     wrefresh(game_Display);
