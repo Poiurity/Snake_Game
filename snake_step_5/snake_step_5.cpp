@@ -255,8 +255,6 @@ int main()
       data_Snake.clear();
       data_Wall.clear();
 
-      cout << data_Snake.size() << endl;
-
       set_Snake(data_Snake);
       draw_Wall();
 
