@@ -4,6 +4,7 @@
 #include<deque>
 #include <ctime>
 #include <chrono>
+#include <unordered_set>
 using namespace std;
 
 // 자주 사용되는 설정값 상수로 define
@@ -112,12 +113,19 @@ inline void get_Item(deque<Snake> &data_Snake, Item &item) {
 void draw_Gate() {
     data_Gate.clear();
     int gate_count = 0;
+    std::unordered_set<int> selected_indices;  // 중복 인덱스 추적
+
     while (gate_count < 2) {
         int gate_index = rand() % data_Wall.size();
-        Wall selected_wall = data_Wall[gate_index];
+        
+        // 중복 인덱스가 아닌 경우에만 실행
+        if (selected_indices.find(gate_index) == selected_indices.end()) {
+            Wall selected_wall = data_Wall[gate_index];
 
-        data_Gate.push_back(Gate(selected_wall.x, selected_wall.y));
-        gate_count++;
+            data_Gate.push_back(Gate(selected_wall.x, selected_wall.y));
+            selected_indices.insert(gate_index);  // 선택된 인덱스 기록
+            gate_count++;
+        }
     }
 }
 
