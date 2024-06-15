@@ -14,7 +14,8 @@
 : data_Wall에서 무작위로 두 개의 벽을 선택하고, 각각의 벽 위치에 게이터를 생성하여 data_Gate에 추가. 단, immune wall에는 gate가 생성안되게 함.
 
 (line 138) snake 위치 이동 함수
-: snake의 머리가 gate를 맞닿게 되면 다른 쪽 gate로 이동하게 하고 gate통과 횟수 변수인 gate_pass_count를 증가시킴. 그리고 새로운 gate를 생성. snake의 진행방향을 재설정.
+: snake의 머리가 gate를 맞닿게 되면 다른 쪽 gate로 이동하게 하고 gate통과 횟수 변수인 gate_pass_count를 증가시킴. 
+ snake의 진행방향을 재설정. 그리고 기존에 있던 gate는 없애고 새로운 gate를 생성
 
 (line 168) draw_Wall 함수
 : 기존의 벽 출력의 함수 수정
