@@ -10,6 +10,8 @@ using namespace std;
 // 자주 사용되는 설정값 상수로 define
 #define width_game_Display 80
 #define height_game_Display 40
+#define width_board_Display 10
+#define height_board_Display 20
 #define X_game_Display 1
 #define Y_game_Display 1
 
@@ -47,8 +49,6 @@ vector<Wall> data_Wall;
 vector<Item> data_Item;
 vector<Gate> data_Gate;
 int cur_Stage = 1;
-
-int gate_pass_count = 0; // gate 통과 횟수
 
 //함수 선언 공간
 void set_Snake(deque<Snake> &data){
@@ -100,12 +100,14 @@ inline void generate_Item() {
 }
 
 // 아이템 획득 -> type에 따라 tail 조정
-inline void get_Item(deque<Snake> &data_Snake, Item &item) {
+inline void get_Item(deque<Snake> &data_Snake, Item &item, int &cnt_grwItems, int &cnt_psnItems) {
   if (item.type == GROWTH) {
     Snake tail = data_Snake.back();
     data_Snake.push_back(tail);
+    cnt_grwItems++;
   } else if (item.type == POISON) {
     data_Snake.pop_back();
+    cnt_psnItems++;
   }
 }
 
@@ -136,7 +138,7 @@ void draw_Gate() {
 
 
 // 게이트 통과시 뱀 위치 이동
-void teleport_Snake(deque<Snake> &data_Snake, int &head_x, int &head_y, int &cur_Dir) {
+void teleport_Snake(deque<Snake> &data_Snake, int &head_x, int &head_y, int &cur_Dir, int &cnt_gatePass) {
     if (data_Gate.size() != 2) return; 
     Gate gate_in = data_Gate[0];
     Gate gate_out = data_Gate[1];
@@ -144,12 +146,12 @@ void teleport_Snake(deque<Snake> &data_Snake, int &head_x, int &head_y, int &cur
     if (head_x == gate_in.x && head_y == gate_in.y) {
         head_x = gate_out.x;
         head_y = gate_out.y;
-        gate_pass_count++; // gate 통과 횟수 증가
+        cnt_gatePass++; // gate 통과 횟수 증가
         draw_Gate(); // 새로운 gate 생성
     } else if (head_x == gate_out.x && head_y == gate_out.y) {
         head_x = gate_in.x;
         head_y = gate_in.y;
-        gate_pass_count++; // gate 통과 횟수 증가
+        cnt_gatePass++; // gate 통과 횟수 증가
         draw_Gate(); // 새로운 gate 생성
     }
 
@@ -226,12 +228,18 @@ int main()
   init_pair(6, COLOR_BLUE, COLOR_BLUE); // growth item, blue
   init_pair(7, COLOR_RED, COLOR_RED); // poison item, red
   init_pair(9, COLOR_GREEN,COLOR_GREEN); // gate
+  init_pair(2, COLOR_BLACK, COLOR_BLUE); // score board, mission board
 
   refresh(); 
 
   // 변수 선언 공간
   WINDOW* game_Display;
+  WINDOW* score_Display;
+  WINDOW* mission_Display;
   deque<Snake> data_Snake;
+  
+  time_t end_T;
+  time_t cur_T;
 
   bool stop = false;
   bool err_Dir = false;
@@ -240,7 +248,14 @@ int main()
   int cur_Dir = RIGHT; 
   int in_Key; 
 
+  int cnt_grwItems = 0;
+  int cnt_psnItems = 0;
+  int cnt_gatePass = 0;
   int cnt_Item = 0;
+  int length_Goal = 5; // 목표 길이 초기값
+  int grw_Goal = 3; // Growth Item 목표 초기값
+  int psn_Goal = 1; // Poison Item 목표 초기값
+  int gpss_Goal = 1; // Gate Pass 목표 초기값
   srand(time(NULL));  // 아이템 생성을 위한 난수 시드 설정
 
 
@@ -251,6 +266,13 @@ int main()
 
   // while loop 진입
   while(!stop){
+    //현재시간 측정, 미션 클리어한 시간(end_T)과 비교해 1초간 delay 발생
+    time(&cur_T);
+    if(cur_T - end_T < 2){
+      in_Key = 0; // delay 되는동안 사용자 입력 비활성화
+      erase();
+      continue;
+    }
     // 변수 선언 및 초기화
     Snake head = data_Snake.front();
     int head_x = head.x;
@@ -296,8 +318,29 @@ int main()
     if(crash_Check(head_x, head_y)) {break;/*afterCrash(stop);*/} 
     // 전체 길이가 3 미만이면 종료
     if(data_Snake.size() < 3) stop = true;
-    // (임시) W 누르면 data_wall 실행 -> 맵 바꾸기
-    if(in_Key == 'w') {draw_Wall();}
+    //모든 스테이지 클리어 하거나 제한 길이 넘어서면 종료
+    if(cur_Stage >= 5 || data_Snake.size() >= length_Goal+2){stop = true;}
+    //모든 목표에 도달하면 다음 스테이지로 이동
+    else if(data_Snake.size() >= length_Goal && cnt_grwItems >= grw_Goal && cnt_psnItems >= psn_Goal && cnt_gatePass >= gpss_Goal){
+      time(&end_T);
+
+      data_Snake.clear();
+      data_Wall.clear();
+
+      set_Snake(data_Snake);
+      cur_Dir = RIGHT;
+      draw_Wall();
+
+      grw_Goal += 2;
+      psn_Goal += 1;
+      length_Goal += 2;
+      gpss_Goal += 1;
+
+      cnt_grwItems = 0;
+      cnt_psnItems = 0;
+      cnt_gatePass = 0;
+      continue;
+    }
 
     /* 아이템 생성 */
     if (data_Item.size() < 3 && rand() % 100 < 50) {  // 약 50% 확률로 아이템 생성
@@ -308,14 +351,14 @@ int main()
     // 아이템과 스네이크가 만났는지 체크
     for (auto it = data_Item.begin(); it != data_Item.end();) {
       if (head_x == it->x && head_y == it->y) {
-        get_Item(data_Snake, *it);
+        get_Item(data_Snake, *it, cnt_grwItems, cnt_psnItems);
         it = data_Item.erase(it);  // 아이템을 획득한 후 삭제
       } else {
         ++it;
       }
     }
 
-    teleport_Snake(data_Snake, head_x, head_y, cur_Dir);
+    teleport_Snake(data_Snake, head_x, head_y, cur_Dir, cnt_gatePass);
 
     /* 스네이크 위치 최신화 */
 
@@ -402,6 +445,30 @@ int main()
     }
 
     wrefresh(game_Display);
+
+  //Score board 출력
+  score_Display = newwin(width_board_Display, height_board_Display, Y_game_Display, width_game_Display + 5);
+  wbkgd(score_Display, COLOR_PAIR(2));
+  wattron(score_Display, COLOR_PAIR(2));
+  //wborder(score_Display, '.', '.', '.', '.', '#', '#', '#', '#');
+  mvwprintw(score_Display, 1, 1, "Score Board");
+  mvwprintw(score_Display, 2, 1, "B : %d / %d", data_Snake.size(), length_Goal+2);
+  mvwprintw(score_Display, 3, 1, "+ : (%d)", cnt_grwItems);
+  mvwprintw(score_Display, 4, 1, "- : (%d)", cnt_psnItems);
+  mvwprintw(score_Display, 5, 1, "G : (%d)", cnt_gatePass);
+  wrefresh(score_Display);
+
+  //Missin board 출력
+  mission_Display = newwin(width_board_Display, height_board_Display, width_board_Display + 2, width_game_Display + 5);
+  wbkgd(mission_Display, COLOR_PAIR(2));
+  wattron(mission_Display, COLOR_PAIR(2));
+  //wborder(mission_Display, '.', '.', '.', '.', '#', '#', '#', '#');
+  mvwprintw(mission_Display, 1, 1, "Mission Board");
+  mvwprintw(mission_Display, 2, 1, "B : %d (%c)", length_Goal,data_Snake.size() >= length_Goal?'v':' ');
+  mvwprintw(mission_Display, 3, 1, "+ : %d (%c)", grw_Goal,cnt_grwItems >= grw_Goal?'v':' ');
+  mvwprintw(mission_Display, 4, 1, "- : %d (%c)", psn_Goal,cnt_psnItems >= psn_Goal?'v':' ');
+  mvwprintw(mission_Display, 5, 1, "G : %d (%c)", gpss_Goal,cnt_gatePass >= gpss_Goal?'v':' ');
+  wrefresh(mission_Display);
   }
 
   getch();

@@ -255,6 +255,7 @@ int main()
       data_Wall.clear();
 
       set_Snake(data_Snake);
+      cur_Dir = RIGHT;
       draw_Wall();
 
       grw_Goal += 2;
