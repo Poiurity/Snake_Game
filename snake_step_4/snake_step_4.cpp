@@ -122,12 +122,18 @@ void draw_Gate() {
         if (selected_indices.find(gate_index) == selected_indices.end()) {
             Wall selected_wall = data_Wall[gate_index];
 
-            data_Gate.push_back(Gate(selected_wall.x, selected_wall.y));
-            selected_indices.insert(gate_index);  // 선택된 인덱스 기록
-            gate_count++;
+            // 벽이 가장자리 모서리에 위치하지 않는지 확인
+            if (!((selected_wall.x == 0 || selected_wall.x == width_game_Display - 1) && 
+                  (selected_wall.y == 0 || selected_wall.y == height_game_Display - 1))) {
+
+                data_Gate.push_back(Gate(selected_wall.x, selected_wall.y));
+                selected_indices.insert(gate_index);  // 선택된 인덱스 기록
+                gate_count++;
+            }
         }
     }
 }
+
 
 // 게이트 통과시 뱀 위치 이동
 void teleport_Snake(deque<Snake> &data_Snake, int &head_x, int &head_y, int &cur_Dir) {
