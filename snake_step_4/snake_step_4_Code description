@@ -1,0 +1,32 @@
+(line 7)  #include <unordered_set>
+: 인덱스가 중복되지 않게 하기 위해 사용함 
+
+(line 40) Gate Structure 추가
+: gate의 좌표(x, y)를 가짐.
+
+(line 48) Gate의 데이터를 담는 벡터
+: data_Gate : 게이트의 데이터를 담고 있는 벡터
+
+(line 51) gate 통과  횟수
+: gate_pass_count : 게이트를 통과하는 횟수를 담고 있는 변수
+
+(line 112) gate 생성 함수
+: data_Wall에서 무작위로 두 개의 벽을 선택하고, 각각의 벽 위치에 게이터를 생성하여 data_Gate에 추가.
+
+(line 132) snake 위치 이동 함수
+: snake의 머리가 gate를 맞닿게 되면 다른 쪽 gate로 이동하게 하고 gate통과 횟수 변수인 gate_pass_count를 증가시킴. 그리고 새로운 gate를 생성. snake의 진행방향을 재설정.
+
+(line 166, 180, 194, 208)
+: 맵의 가장자리를 그림
+
+(line 247)
+: gate의 색상을 초록색으로 설정
+
+(line 269)
+: gate를 그림
+
+(line 364)
+: 맵 구조물 출력 부분에 gate 출력을 추가시켜서 gate도 같이 출력되게함. 
+
+참고문헌
+: 
