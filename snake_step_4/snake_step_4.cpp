@@ -165,71 +165,46 @@ void map_2();
 void map_3();
 void map_4();
 
-void draw_Wall(){
-  switch (cur_Stage) {
-    case 1: {
-      data_Wall.clear();
-      for (int i = 0; i < width_game_Display; i++) {
-        data_Wall.push_back(Wall(i, 0));
-        data_Wall.push_back(Wall(i, height_game_Display - 1));
-      }
-      for (int i = 0; i < height_game_Display; i++) {
-        data_Wall.push_back(Wall(0, i));
-        data_Wall.push_back(Wall(width_game_Display - 1, i));
-      }
-      map_1();
-      cur_Stage++;
-      break;
+void draw_Wall() {
+    switch (cur_Stage) {
+        case 1:
+        case 2:
+        case 3:
+        case 4: {
+            data_Wall.clear();
+            // 상단과 하단 벽 생성
+            for (int i = 0; i < width_game_Display; i++) {
+                data_Wall.push_back(Wall(i, 0));
+                data_Wall.push_back(Wall(i, height_game_Display - 1));
+            }
+            // 좌측과 우측 벽 생성
+            for (int i = 0; i < height_game_Display; i++) {
+                data_Wall.push_back(Wall(0, i));
+                data_Wall.push_back(Wall(width_game_Display - 2, i));
+            }
+
+            // 맵 생성 함수 호출
+            if (cur_Stage == 1) {
+                map_1();
+            } else if (cur_Stage == 2) {
+                map_2();
+            } else if (cur_Stage == 3) {
+                map_3();
+            } else if (cur_Stage == 4) {
+                map_4();
+            }
+
+            cur_Stage++;
+            break;
+        }
+        default: {
+            cur_Stage = 1;
+            draw_Wall();
+            break;
+        }
     }
-    case 2: {
-      data_Wall.clear();
-      for (int i = 0; i < width_game_Display; i++) {
-        data_Wall.push_back(Wall(i, 0));
-        data_Wall.push_back(Wall(i, height_game_Display - 1));
-      }
-      for (int i = 0; i < height_game_Display; i++) {
-        data_Wall.push_back(Wall(0, i));
-        data_Wall.push_back(Wall(width_game_Display - 1, i));
-      }
-      map_2();
-      cur_Stage++;
-      break;
-    }
-    case 3: {
-      data_Wall.clear();
-      for (int i = 0; i < width_game_Display; i++) {
-        data_Wall.push_back(Wall(i, 0));
-        data_Wall.push_back(Wall(i, height_game_Display - 1));
-      }
-      for (int i = 0; i < height_game_Display; i++) {
-        data_Wall.push_back(Wall(0, i));
-        data_Wall.push_back(Wall(width_game_Display - 1, i));
-      }
-      map_3();
-      cur_Stage++;
-      break;
-    }
-    case 4: {
-      data_Wall.clear();
-      for (int i = 0; i < width_game_Display; i++) {
-        data_Wall.push_back(Wall(i, 0));
-        data_Wall.push_back(Wall(i, height_game_Display - 1));
-      }
-      for (int i = 0; i < height_game_Display; i++) {
-        data_Wall.push_back(Wall(0, i));
-        data_Wall.push_back(Wall(width_game_Display - 1, i));
-      }
-      map_4();
-      cur_Stage++;
-      break;
-    }
-    default: {
-      cur_Stage = 1;
-      draw_Wall();
-      break;
-    }
-  }
 }
+
 
 
 int main()
