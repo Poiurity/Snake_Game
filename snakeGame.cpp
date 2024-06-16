@@ -586,6 +586,4 @@ void map_4(){
     data_Wall.push_back(Wall(tmp_x, i));
   }
 
-  // (임시) W 누르면 data_wall 실행 -> 맵 바꾸기
-    if(in_Key == 'w') {draw_Wall();}
 }
